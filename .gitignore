@@ -1,0 +1,3 @@
+pycache__/
+.venv/
+scraping/amazon_products_all_categories.csv
