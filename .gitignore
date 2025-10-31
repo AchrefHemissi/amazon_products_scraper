@@ -1,3 +1,4 @@
-pycache__/
+__pycache__/
+*.pyc
 .venv/
 scraping/amazon_products_all_categories.csv
