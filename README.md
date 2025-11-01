@@ -236,7 +236,13 @@ Next steps & improvements
 - Add an API service to `docker-compose.yml` so MongoDB + API run with one command.
 - Improve frontend UX (faceted filters, infinite scroll, caching).
 
-Legal & license
+Legal & License
 ---------------
-- This project is a demo. Scraping Amazon may violate their Terms of Service — use responsibly and respect robots.txt. For production use, prefer official APIs or licensed data.
-- Add your preferred license file to the repo.
+- This project is a demo. Scraping Amazon may violate their Terms of Service — use responsibly and respect `robots.txt`.  
+  For production use, prefer official APIs or licensed data sources.
+- This project is released under the **Educational Use License (EUL)**.  
+  You are free to use, copy, and modify this code **for learning and non-commercial purposes only**.  
+  Any commercial use, redistribution, or resale is **strictly prohibited** without prior written permission.
+
+Copyright (c) 2025 Mohamemd Achref Hemissi. All rights reserved.
+
