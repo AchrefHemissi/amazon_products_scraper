@@ -1,0 +1,18 @@
+# Requirements for amazon_products_scraper
+# Core scraping and analysis
+requests>=2.28.2
+beautifulsoup4>=4.12.2
+pandas>=1.5.3
+
+# API and server
+fastapi>=0.95.2
+uvicorn[standard]>=0.21.1
+
+# Database
+pymongo>=4.3.3            # sync MongoDB driver for ingestion scripts
+# motor>=3.1.1            # optional: async MongoDB driver for FastAPI (use if you prefer async)
+
+# Environment
+python-dotenv>=1.0.0
+
+# Optional: you can pin versions further depending on your environment

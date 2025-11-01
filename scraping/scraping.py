@@ -148,5 +148,5 @@ if __name__ == "__main__":
         time.sleep(2)  # polite delay between categories
 
     df = pd.DataFrame(all_data)
-    df.to_csv("amazon_products_all_categories.csv", index=False)
-    print("Saved", len(df), "rows to amazon_products_all_categories.csv")
+    df.to_csv("scraping/amazon_products_all_categories.csv", index=False)
+    print("Saved", len(df), "rows to scraping/amazon_products_all_categories.csv")

@@ -1,4 +1,5 @@
 __pycache__/
 *.pyc
 .venv/
-scraping/amazon_products_all_categories.csv
+amazon_products_all_categories.csv
+mongo-data/
