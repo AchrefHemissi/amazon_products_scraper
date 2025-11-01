@@ -153,11 +153,54 @@ def get_product(product_id: str):
 
 
 @app.get("/best-deals", response_model=list[Product])
-def best_deals(limit: int = Query(20, ge=1, le=200), min_rating: float = Query(4.0)):
-    filt = {"discount_%": {"$ne": None}}
-    if min_rating:
-        filt["rating"] = {"$gte": min_rating}
-    cursor = col.find(filt).sort([("discount_%", -1), ("rating", -1), ("reviews", -1)]).limit(limit)
+def best_deals(
+    limit: int = Query(20, ge=1, le=200),
+    min_rating: float = Query(4.0),
+    weight_discount: float = Query(0.7, ge=0.0, le=1.0),
+    weight_rating: float = Query(0.3, ge=0.0, le=1.0),
+):
+    """Return top deals ranked by a composite score combining discount% and rating.
+
+    The endpoint computes a normalized score per document in MongoDB using an aggregation pipeline.
+    Score = (discount_% / 100) * weight_discount + (rating / 5) * weight_rating
+    Documents are filtered to require a positive discount and at least `min_rating`.
+    We use `$convert` with `onError`/`onNull` fallbacks so non-numeric DB values don't break the pipeline.
+    """
+    # normalize weights so they sum to 1 (avoid degenerate inputs)
+    total_w = weight_discount + weight_rating
+    if total_w <= 0:
+        weight_discount, weight_rating = 0.7, 0.3
+    else:
+        weight_discount = weight_discount / total_w
+        weight_rating = weight_rating / total_w
+
+    # Aggregation pipeline computes numeric fields safely, computes score, sorts and limits
+    pipeline = [
+        {
+            "$addFields": {
+                "discount_num": {
+                    "$convert": {"input": "$discount_%", "to": "double", "onError": 0, "onNull": 0}
+                },
+                "rating_num": {"$convert": {"input": "$rating", "to": "double", "onError": 0, "onNull": 0}},
+                "reviews_num": {"$convert": {"input": "$reviews", "to": "long", "onError": 0, "onNull": 0}},
+            }
+        },
+        {"$match": {"discount_num": {"$gt": 0}, "rating_num": {"$gte": min_rating}}},
+        {
+            "$addFields": {
+                "score": {
+                    "$add": [
+                        {"$multiply": [{"$divide": ["$discount_num", 100]}, weight_discount]},
+                        {"$multiply": [{"$divide": ["$rating_num", 5]}, weight_rating]},
+                    ]
+                }
+            }
+        },
+        {"$sort": {"score": -1, "rating_num": -1, "reviews_num": -1}},
+        {"$limit": limit},
+    ]
+
+    cursor = col.aggregate(pipeline)
     items = []
     for d in cursor:
         items.append({
@@ -174,6 +217,7 @@ def best_deals(limit: int = Query(20, ge=1, le=200), min_rating: float = Query(4
             "image": d.get("image"),
             "availability": d.get("availability"),
         })
+
     return [Product.parse_obj(it) for it in items]
 
 
